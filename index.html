@@ -675,12 +675,12 @@
 					  			--this.score;
 					  		}
 								this.tail = this.tail.slice(0,this.size);
-								this.interval =Infinity;//= 1000/(this.spd*2.5);
+								this.interval= 1000/(this.spd*2.5);
 								return true;
 					  	}
 					  });
 					}
-
+//commit test
 					//other snake collision check
 					if(this.multiplayer && this.gameStarted && this.score && !this.failed){
 						parent.snakes.some((snake)=>{
