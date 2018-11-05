@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Canvas snake</title>
+	<style>
+		body{
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+			display: flex;
+			justify-content: space-around;
+			-ms-align-items: center;
+			align-items: center;
+			height: 100vh;
+			background-image: radial-gradient(ellipse farthest-corner at center, #1FC3FF 0%, #376770 100%);
+		}
+		canvas{
+			padding: 0;
+		}
+		#canv{
+			position: relative;
+			display: block;
+			background: #282923;
+		}
+
+		#canv2{
+			position: relative;
+			display: block;
+			background: #282923;
+			/*top: 570px;*/
+		}
+		.scores{
+			position: absolute;
+			left: 5px;
+			font-size: 1.5em;
+			padding: 0;
+			margin: 0;
+		}
+		.sidebar{
+			position: relative;
+			flex-direction: column;
+			width: 500px;	
+			height: 90vh;
+			padding: 8px;
+			background: #282923;
+			border-radius: 30px;
+			overflow-y: auto;
+		}
+		.sidebar li.snake{
+			/*width: 100%;*/
+			height: 40px;
+			border-radius: 30px;
+			display: flex;
+			justify-content: flex-end;
+			-ms-align-items: center;
+			align-items: center;
+			background: #cccccc;
+			margin-bottom: 8px;
+			border:3px solid rgba(255,255,255,.55);
+		}
+		.sidebar li.controls{
+			display: flex;
+			justify-content: flex-end;
+		}
+		.sidebar li.controls .btnAddSnake{
+			height: 40px;
+			width: 40px;
+			align-self: flex-end;
+			color: #fff;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			border-radius: 30px;
+			font-size: 30px;
+			border:3px solid rgba(255,255,255,.55);
+			background: #cccccc;
+		}
+		.sidebar li.controls .btnAddSnake:hover{
+			cursor: pointer;
+			border:3px solid rgba(0, 0, 0, 0.2);
+		}
+		.sidebar li.controls input{
+			margin-left: 10px;
+		}
+		.sidebar li.snake input{
+			width: 20px;
+			height: 20px;	
+			-webkit-box-sizing: border-box;
+			-moz-box-sizing: border-box;
+			box-sizing: border-box;
+			font-size: 20px;
+			line-height: 20px;
+			display: -webkit-flex;
+			display: -moz-flex;
+			display: -ms-flex;
+			display: -o-flex;
+			display: flex;
+			-ms-align-items: center;
+			align-items: center;
+			justify-content: center;
+			position: relative;
+			padding: 0;
+			margin-right: 10px;
+		}
+		input{
+		  background-color: rgba(255,255,255,.4);
+		  border:3px solid rgba(0,0,0,.5);
+		  min-height: 30px;
+		  min-width: 30px;
+		  line-height: 25px;
+		  border-radius: 6px;
+		  /*color: rgba(255, 255, 255, 0.4);*/
+		  color: #000;
+		  text-align: center;
+		  /*text-transform: uppercase;*/
+		}
+		input[type='text']::-webkit-input-placeholder {
+		  font-size: 25px;
+		  /*color: rgba(255, 255, 255, 0.4);*/
+		  color: #000;
+		  text-align: center;
+		  text-transform: uppercase;
+		  vertical-align: middle;
+		}
+		input[type='color']{
+		  background-color: rgba(255,255,255,.4);
+		  border:3px solid rgba(0,0,0,.5);
+		  min-height: 30px;
+		  min-width: 30px;
+		  /*line-height: 25px;*/
+		  border-radius: 6px;
+		}
+		input[type='number']{
+			min-width: 20px;
+			width: 50px;
+		}
+		input[type='number']::-webkit-inner-spin-button{
+			/*background: transparent;*/
+			/*height: 50%;*/
+			display: block;
+		}
+		input:hover{
+			border:3px solid rgba(255, 255, 255, 0.6);
+		}
+		input:focus{
+			outline: none !important;
+		}
+		.score{
+			position: absolute;
+			left: 30px;
+			font-family: sans-serif;
+			font-size: 18px;
+		}
+		/*
+		::-webkit-input-placeholder {
+		  text-align: center;
+		}
+
+		:-moz-placeholder { /* Firefox 18- *
+		  text-align: center;  
+		}
+
+		::-moz-placeholder {  /* Firefox 19+ *
+		  text-align: center;  
+		}
+
+		:-ms-input-placeholder {  
+		  text-align: center; 
+		}*/
+	</style>
+</head>
+<body>
+	<ul class="scores">
+		<li class="snake1Score"></li>
+		<li class="snake2Score"></li>
+		<li class="snake3Score"></li>
+	</ul>
+	<audio id="turn">
+	  <source src="sounds/5.mp3" type="audio/ogg">
+	  Your browser does not support the audio element.
+	</audio>
+	<audio id="eat">
+	  <source src="sounds/4.mp3" type="audio/ogg">
+	  Your browser does not support the audio element.
+	</audio>
+	<audio id="fail">
+	  <source src="sounds/1.mp3" type="audio/ogg">
+	  Your browser does not support the audio element.
+	</audio>
+	<canvas id='canv'>Update your browser</canvas>
+	<ul class="sidebar">
+		<!-- <li class="snake">
+			<strong class="score">Score: <span class="value">10</span></strong>
+			<input type="color">
+			<input type="text" placeholder="&lArr;">
+			<input type="text" placeholder="&uArr;">
+			<input type="text" placeholder="&rArr;">
+			<input type="text" placeholder="&dArr;">
+			<input type="button" value="&#x2715;">
+		</li> -->
+		<li class="controls" id="controls"><input type="number" min="1" max="20" value="1"id="appleControl"><input type="button" class="btnAddSnake" id="btnAddSnake" value="+"></li>
+	</ul>
+	
+	<!-- <canvas id='canv2'>Update your browser</canvas> -->
+	<script>
+		'use strict'
+		//alert(JSON.stringify({up: 38,dn: 40,lt: 37,rt: 39}) === JSON.stringify({up: 38,dn: 40,lt: 37,rt: 39}));
+		class Canvas{
+			constructor(selector, pxSize, pxNum = 36 * 2){
+				this._selector = selector;
+				//this.size  = ~~size;
+				this.pxNum = ~~pxNum;
+				this.pxSize = ~~pxSize;
+				//this.pxSize = this.size / this.pxNum;
+				this.size = this.pxNum * this.pxSize;
+				this.appleNum = 3;
+				//this.drawGrid();
+				this.snakes = [];
+				this.apples = [];
+				this.init();
+			}
+			get elem() {
+				return document.querySelector(this._selector);
+			}
+			get ctx() {
+				return this.elem.getContext('2d');
+			}
+			get test() {
+				return "test";
+			}
+			init() {
+				const canv = this.elem;
+				const ctx  = this.ctx;
+				ctx.fillStyle = 'Black';
+				ctx.strokeStyle = 'Black';
+				canv.width  = canv.height = this.size;
+
+				this.snakes.forEach((snake)=>{
+					snake.init();
+				});
+				addEventListener("keypress",(e) => {
+					if(e.keyCode == 13 && !this.gameStarted){
+						this.gameStarted = true;
+
+						this.appleSpawn();
+						this.applesDraw();
+						this.snakes.forEach((snake)=>{
+							snake.start();
+						});
+					}
+				});
+				this.appleControl();
+			}
+			drawLine(x1, y1, x2, y2, color = 'grey') {
+				const canv = this.elem;
+				const ctx  = this.ctx;
+				ctx.beginPath();
+				ctx.strokeStyle = color;
+				ctx.lineJoin = 'mitter';
+				ctx.lineWidth = 1;
+				ctx.moveTo(x1, y1);
+				ctx.lineTo(x2, y2);
+				ctx.stroke();
+			}
+			drawGrid(){
+				let w = this.size,
+						h = this.size,
+						p = 36,//w / Canvas._pxSize,
+
+						xStep = w / p,
+						yStep = h / p;
+
+				for(let x = 0; x < w; x += xStep){
+					this.drawLine(x, 0, x, h);
+				} 
+				for(let y = 0; y < h; y += yStep){
+					this.drawLine(0, y, w, y);
+				}
+			}
+			appleAdd(){
+				++this.appleNum;
+				let apl = new Apple(this,"blue");
+				this.apples.push(apl);
+				apl.randCord();
+				apl.spawn();
+			}
+			appleRemove(){
+				--this.appleNum;
+				let i = this.apples.length - 1;
+				let apl = this.apples[i];
+				apl.delete();
+				this.apples = this.apples.slice(0,i - 1)
+			}
+			appleSpawn(){
+				for(let i = 0; i < this.appleNum; ++i){
+					let apl = new Apple(this,"blue");
+					this.apples.push(apl);
+					apl.randCord();
+					apl.spawn();
+				}
+				return this.apples;
+			}
+			applesDraw(){
+				this.apples.every((elem,i)=>{
+					elem.spawn();
+				});
+			}
+			addSnake(){
+				const snake = new Snake(this, 20, "lime",  {up: 73, dn: 75, lt: 74, rt: 76,  forse: 16 });
+			}
+			appleControl(){
+				const ctx = this.ctx;
+				const appleControl = document.getElementById("appleControl");
+				appleControl.value = this.appleNum;
+				appleControl.addEventListener("change",(e)=>{
+					//alert(e.target.value);
+					//alert("old: "+this.appleNum+"\nnew: "+e.target.value);
+					if(this.appleNum < e.target.value){
+						this.appleAdd();
+					}else{
+						this.appleRemove();
+					}
+				});
+			}
+
+		}
+		class Apple {
+			constructor(parent,color = "blue"){
+				this.color = color;
+				this.parent = parent;
+			}
+			randCord(){
+				const parent = this.parent;
+				this.x = ~~(Math.random() * (parent.size / parent.pxSize)) * parent.pxSize,
+				this.y = ~~(Math.random() * (parent.size / parent.pxSize)) * parent.pxSize;
+				this.parent.snakes.some((snake)=>{
+					snake.tail.some((t)=>{
+						if(~~this.x == ~~t.x && ~~this.y == ~~t.y){
+							this.randCord();
+						}
+					});
+				});
+			}
+			spawn(){
+				const parent = this.parent;
+				const ctx = parent.ctx;
+
+				ctx.fillStyle = this.color;
+				parent.gameStarted ? ctx.fillRect(this.x, this.y,parent.pxSize,parent.pxSize) : false;
+			}
+			respawn(){
+				this.delete();
+				this.randCord();
+				this.spawn();
+			}
+			delete(){
+				const parent = this.parent;
+				const ctx = parent.ctx;
+				ctx.clearRect(this.x, this.y,parent.pxSize,parent.pxSize);
+			}
+		}
+		class Snake {
+			constructor(
+					parent, 
+					size = 5, 
+					color = "green", 
+					//key = {up: 1094||38,dn: 1110||40,lt: 1092||37,rt: 1074||39}
+					key = {up: 38,dn: 40,lt: 37,rt: 39,forse:32}||{up: 87,dn: 83,lt: 65,rt: 68,forse:32},
+					teleport = true,
+					selfCollision = true,
+					multiplayer = true
+				){
+				this.size   = size;//tail size
+				this.tail = []; //tail array
+				this.tail_o = []; //previous frame tail array
+				this.spd = 5; // absloute spead
+				this.spX = 0; //X axis spead
+				this.spY = 0; //Y axis spead
+				this.teleport = teleport;
+				this.selfCollision = true;//selfCollision;
+				this.parent = parent; //parent canvas
+				//this.color  = color; //snake color
+				this.color = "#"+ Math.floor(Math.random()*16777215).toString(16);
+				this.headColor = "#"+ Math.floor(Math.random()*16777215).toString(16);//"red"; 
+				this.score_table;
+				this.key = key; //snake keys array
+				this.gameStarted = false;
+				this.forseSpead = false;
+				this.score = 0;//score
+				this.multiplayer = multiplayer;
+
+				this.parent.snakes.push(this);
+				this.init();
+				this.interval = 1000/(this.spd*2.5);
+			}
+
+			init() {
+				const parent = this.parent;
+				this.settings(".sidebar",parent);
+				if(parent.gameStarted){
+					this.start();
+				}
+			}
+			start(){
+				const parent = this.parent;
+				const headX = ~~(Math.random() * (parent.size / parent.pxSize)) * parent.pxSize,
+							headY = ~~(Math.random() * (parent.size / parent.pxSize)) * parent.pxSize;
+
+				//addEventListener("keypress",(e) => {
+					if(parent.gameStarted){
+						//for(let parent of this.parents){
+							console.log("started");
+							this.place(parent, headX, headY);
+
+							const ctx  = parent.ctx;
+							ctx.fillStyle = 'Black';
+							//ctx.strokeStyle = 'Black';
+							const pxSize = parent.pxSize;
+							
+							this.gameStarted = true;
+							this.move( parent, headX, headY );
+						//}
+					}
+				//});
+			}
+			drawTail(ctx,pxSize){
+				if(!this.deleted){
+					this.tail.forEach((elem,i)=>{
+				    ctx.fillStyle = elem.color;
+				    if(i == 0 && !this.failed){ctx.fillStyle = this.headColor;}
+				    ctx.fillRect(elem.x, elem.y, pxSize, pxSize);
+				  });
+				}
+			}
+			clearTail(ctx,pxSize){
+				if(!this.deleted){
+					let c = 0.2;
+					this.tail_o.forEach((elem,i)=>{
+				    //ctx.clearRect(elem.x - 0.45, elem.y - 0.45, pxSize + 0.9, pxSize + 0.9);
+				    ctx.clearRect(elem.x - c, elem.y - c, pxSize + 2*c, pxSize + 2*c);
+				  });
+				  this.tail_o = this.tail;
+				}
+			}
+			place(parent, headX, headY) {
+				const ctx  = parent.ctx;
+				const pxSize = parent.pxSize;
+				//ctx.strokeStyle = this.color;
+				ctx.lineJoin = 'mitter';
+				ctx.lineWidth = 1;
+				ctx.fillStyle = this.color;
+
+				//ctx.beginPath();
+				let head  = ctx.fillRect(headX, headY, pxSize, pxSize);//ctx.arc(headX, headY, pxSize / 2,0, Math.PI * 2);
+				//ctx.fill()
+				//ctx.closePath();
+				//console.log(this.appleCheck(parent,headX,headY));
+			}
+			remove(ctx,pxSize){
+				//this.score_table.removeChild(this.panel);
+				this.panel.style.display = "none";
+				this.failed = true;
+				//headX -= this.spX;
+				//headY -= this.spY;
+				this.size -= 1;
+				this.spX = 0;
+				this.spY = 0;
+				this.score = 0;
+				this.failed = true;
+				this.deleted = true;
+
+				this.tail.forEach((elem,i)=>{
+			    ctx.clearRect(elem.x - 0.45, elem.y - 0.45, pxSize + 0.9, pxSize + 0.9);
+			  });
+
+				//this.tail = [NaN];
+				let snakes = this.parent.snakes;
+				let index  = this.parent.snakes.indexOf(this);
+				snakes.splice(index,1);
+				console.log(snakes.length);
+			  ctx.clearRect(this.headX - 0.45, this.headY - 0.45, pxSize + 0.9, pxSize + 0.9);
+			}
+			sound(id){
+				document.getElementById(id).pause();
+				document.getElementById(id).currentTime = 0;
+				document.getElementById(id).play();
+			}
+			settings(elem,parent){
+				const ctx  = parent.ctx;
+				const pxSize = parent.pxSize;
+
+				let panel  			= document.createElement("li"),
+						score_table = document.createElement("strong"),
+						scoreTxt    = document.createTextNode("Score: "),
+						scoreVal    = document.createElement("span"),
+						color  			= document.createElement("input"),
+						btnDel 			= document.createElement("input");
+
+				panel.classList.add("snake");
+				panel.style.backgroundColor = this.color;
+
+				score_table.classList.add("score");
+				score_table.appendChild(scoreTxt);
+				score_table.appendChild(scoreVal);
+
+				color.setAttribute("type","color");
+				color.value = this.color;
+
+				btnDel.setAttribute("type","button");
+				btnDel.value = String.fromCharCode(10005);
+
+				panel.appendChild(score_table);
+				panel.appendChild(color);
+				let keys = {
+					lt : String.fromCharCode(8656),//"&lArr;",
+					up : String.fromCharCode(8657),//"&uArr;",
+					rt : String.fromCharCode(8658),//"&rArr;",
+					dn : String.fromCharCode(8659),//"&dArr;",
+				}
+
+				const Sidebar = document.querySelector(elem);
+				const btnAddSnake = document.getElementById("controls");
+				panel = Sidebar.insertBefore(panel, btnAddSnake);
+				for (let key in keys) {
+					let k = document.createElement("input");
+					k.classList.add("key");
+					k.setAttribute("type","text");
+					k.setAttribute("placeholder",keys[key]);
+					k.setAttribute("maxlength","1");
+					keys[key] = k;
+					panel.appendChild(k);
+				}
+				panel.appendChild(btnDel);
+
+				for(let k in keys){
+					keys[k].addEventListener("keyup",(e)=>{
+						//keys[k].style.border = "2px solid red";
+						this.key[k] = e.keyCode;
+					});
+				}
+				color.addEventListener("change",()=>{
+					this.color = color.value;
+					panel.style.backgroundColor = this.color;
+				});
+
+				btnDel.addEventListener("click",()=>{
+					this.remove(ctx,pxSize);
+				});
+
+				this.score_table = score_table;
+				this.panel = panel;
+				this.scoreVal = scoreVal;
+				this.scoreVal.innerHTML = this.score;
+			}
+			appleCheck(parent,x,y){
+				//for(let i = 0; i < parent.appleNum; ++i){
+				parent.apples.some((elem,i)=>{
+					let appleX = parent.apples[i].x,
+							appleY = parent.apples[i].y;
+					let headX = x,
+							headY = y;
+
+					if(
+						(Math.abs(headX - appleX) < 2)&&
+						(Math.abs(headY - appleY) < 2)
+					){
+						++this.size;
+						this.sound("eat");
+
+						parent.apples[i].respawn();
+						this.spd += 0.05;
+						++this.score;
+						//console.log(this.size);
+						//alert( this.spd ); 
+						this.interval = 1000/(this.spd*2.5);
+						return true;
+					}
+				});
+			}
+			score_out(selector){
+				this.scoreVal.innerHTML = this.score;
+			}
+			move(parent,headX,headY){
+				const ctx  = parent.ctx;
+				const pxSize = parent.pxSize;
+				let spd_o = this.spd;
+
+				addEventListener("keydown",(e) => {
+					//e.preventDefault();
+					//console.warn(this.key);
+					//alert(this.key.up);
+					if (e.keyCode == this.key.up && !this.spY) { 
+					  this.spY = -parent.pxSize; this.spX = 0; 
+					  this.sound("turn"); 
+					  this.failed=false;
+					}// up
+					else if (e.keyCode == this.key.dn && !this.spY) { 
+						this.spY =  parent.pxSize; this.spX = 0; 
+						this.sound("turn"); 
+						this.failed=false;
+					}// down
+					else if (e.keyCode == this.key.lt && !this.spX) { 
+						this.spX = -parent.pxSize; this.spY = 0; 
+						this.sound("turn"); 
+						this.failed=false;
+					}// left
+					else if (e.keyCode == this.key.rt && !this.spX) { 
+						this.spX =  parent.pxSize; this.spY = 0; 
+						this.sound("turn"); 
+						this.failed=false;
+					}// right
+					else{
+						//console.log(e.keyCode);
+					}
+
+					if (e.keyCode == (this.key.forse) && this.gameStarted && this.forseSpead){
+						this.spd += 15;
+						this.interval = 1000/(this.spd*2.5);
+					}
+				});
+				addEventListener("keyup",(e) => {
+					if (e.keyCode == (this.key.forse) && this.gameStarted && this.forseSpead){
+						this.spd = spd_o;
+						this.interval = 1000/(this.spd*2.5);
+					}
+				});
+
+				let loop = () => {
+
+
+				  this.headX = headX;
+				  this.headY = headY;
+
+				  let head = {x:headX,y:headY,color:ctx.fillStyle};
+
+					//teleport
+					if(this.teleport){
+						let start = 0,
+								end   = parent.size;
+						if( Math.ceil(headX) > end   &&  this.spX >= 0){headX = start - pxSize; }
+					  if( Math.ceil(headX) < start &&  this.spX <= 0){headX = end; }
+					  if( Math.ceil(headY) < start &&  this.spY <= 0){headY = end; }
+					  if( Math.ceil(headY) > end   &&  this.spY >= 0){headY = start - pxSize; }
+					}else{
+						//this.failed = true;
+						//console.log("failed");
+					}
+
+					ctx.fillStyle = this.color;
+
+				  //parent.drawGrid();
+				  //console.log(headX,"\n",headY);
+				  //parent.appleSpawn(parent.appleX,parent.appleY);
+				  //speed increas
+					headX += this.spX;
+					headY += this.spY;
+					head = {x:headX,y:headY,color:ctx.fillStyle};
+
+				  //self collision check
+				  if(this.selfCollision && this.score > 0
+				   && !this.failed){
+					  this.tail.some((elem,i)=>{
+					  	if(elem.x == headX && elem.y == headY && i < this.size - 1 && i > 5){
+					  		this.sound("fail");
+					  		//this.gameStarted = false;
+					  		if(i >= this.tail.length / 2){
+					  			this.size = i;
+					  			this.spd -= (this.spd / this.size);
+					  			this.score -= i;//sthis.size - this.tail.length + i;
+					  		}else{
+					  			this.size -= 1;
+					  			this.spd -= this.spd / this.size;//0.05;
+					  			alert(this.spd - (this.spd / this.size));
+					  			--this.score;
+					  		}
+								this.tail = this.tail.slice(0,this.size);
+								this.interval =Infinity;//= 1000/(this.spd*2.5);
+								return true;
+					  	}
+					  });
+					}
+
+					//other snake collision check
+					if(this.multiplayer && this.gameStarted && this.score && !this.failed){
+						parent.snakes.some((snake)=>{
+							if(snake !== this && !this.failed){
+								//this.color == "grey" ? console.log(this.tail) : false;
+								//snake.tail.some((t,i)=>{
+								let t = snake.tail;
+								for(let i = 0; i < t.length; ++i){
+									if(~~t[i].x == ~~headX && ~~t[i].y == ~~headY && !this.failed){
+										this.sound("fail");
+										headX -= this.spX;
+										headY -= this.spY;
+										this.size -= 1;
+										this.spX = 0;
+										this.spY = 0;
+										--this.score;
+										this.failed = true;
+										this.interval = 1000/(this.spd*2.5);
+										break;
+									}
+								}
+							}
+						});
+					}
+					//clear old tail
+					if(!this.failed||true){
+						this.clearTail(ctx,pxSize);
+					}
+				  //generating new tail by pushing "new head" to the begining of the tail
+				  if(!this.deleted){
+					this.tail.unshift({x:headX,y:headY,color:ctx.fillStyle});
+					}
+
+					//limiter 
+					if( this.tail.length > this.size ){ this.tail.pop(); }
+
+					//draw new tail
+					this.drawTail(ctx,pxSize);
+
+					this.appleCheck(parent,headX,headY);
+					this.score_out(this.score_table);
+					setTimeout(loop,this.interval);
+				}
+				loop();
+			}
+		}
+
+		const canvas1 = new Canvas('#canv' , 10,72);
+		//const canvas2 = new Canvas('#canv2', 550, 15);
+		//console.log(canvas1.snakes);
+
+		//const snake1 = new Snake(canvas1, 20, "lime",  {up: 73, dn: 75, lt: 74, rt: 76,  forse: 16 });
+		//snake1.score_table = ".snake1Score";
+		const snake2 = new Snake(canvas1, 20, "#00ffff",{up: 87, dn: 83, lt: 65, rt: 68,  forse: 16 });
+		snake2.score_table = ".snake2Score";
+		const snake3 = new Snake(canvas1, 20, "#cccccc",  {up: 104,dn: 101,lt: 100,rt: 102, forse: 32});
+		snake3.score_table = ".snake3Score";
+		
+		const addSnake = document.getElementById("btnAddSnake");
+		addSnake.addEventListener("click",()=>{
+			canvas1.addSnake();
+			canvas1.appleAdd();
+		});
+	</script>
+</body>
+</html>
+
+<!-- <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Вивчаємо HTML</title>
+</head>
+<body>
+	<ol>
+		<li>
+			<ul>
+				<li>Текст</li>
+				<li>Текст</li>
+				<li>Текст</li>
+			</ul>
+		</li>
+	</ol>
+
+	<form action="">
+		<input type=”text” placeholder=”Логін”>
+		<input type=”password” placeholder=”Пароль”>
+		<textarea placeholder=”Ваше повідомлення”></textarea>
+		<input type=”submit” value=”Надіслати”>
+	</form>
+
+	<table>
+		<caption>Заголовок таблиці</caption>
+		<thead>
+			<td>Заголовок</td>
+			<td>Заголовок</td>
+			<td>Заголовок</td>
+			<td>Заголовок</td>
+		</thead>
+		<tr>
+			<td>Текст</td>
+			<td>Текст</td>
+			<td>Текст</td>
+			<td>Текст</td>
+		</tr>
+		<tr>
+			<td>Текст</td>
+			<td>Текст</td>
+			<td>Текст</td>
+			<td>Текст</td>
+		</tr>
+		<tfoot>
+			<td>Текст</td>
+			<td>Текст</td>
+			<td>Текст</td>
+			<td>Текст</td>
+		</tfoot>
+	</table>
+	<p><strong>HTML</strong> - стандартна мова розмітки веб-сторінок в <em>Інтернеті</em>. Більшість веб-сторінок створюються за <sub>допомогою</sub> мови HTML. Документ HTML <sup>оброблюється</sup> браузером та відтворюється на <small>екрані у звичному для людини</small> вигляді.</p>
+</body>
+</html> -->
