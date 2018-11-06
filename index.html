@@ -314,14 +314,17 @@
 				const ctx = this.ctx;
 				const appleControl = document.getElementById("appleControl");
 				appleControl.value = this.appleNum;
+				appleControl.addEventListener("keydown",(e)=>{
+					e.preventDefault();
+				});
 				appleControl.addEventListener("change",(e)=>{
 					//alert(e.target.value);
 					//alert("old: "+this.appleNum+"\nnew: "+e.target.value);
 					if(this.appleNum < e.target.value){
 						//this.appleAdd();
-						for(let i = this.appleNum; i < e.target.value; ++i){
+						/*for(let i = this.appleNum; i < e.target.value; ++i){
 							this.appleAdd();
-						}
+						}*/
 					}else{
 						//this.appleRemove();
 						let num = this.appleNum + 2;
@@ -329,9 +332,10 @@
 							alert(e.target.value+"\n"+this.appleNum);
 							this.appleRemove();
 						}*/
-						do{
+						this.appleRemove();
+						/*do{
 							this.appleRemove();
-						}while(this.appleNum >= e.target.value -2);
+						}while(this.appleNum >= e.target.value -2);*/
 					}
 				});
 			}
