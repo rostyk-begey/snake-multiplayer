@@ -134,6 +134,8 @@
 		input[type='number']{
 			min-width: 20px;
 			width: 50px;
+			color: transparent;
+			text-shadow: 0 0 0 black;
 		}
 		input[type='number']::-webkit-inner-spin-button{
 			/*background: transparent;*/
@@ -290,8 +292,7 @@
 				let i = this.apples.length - 1;
 				let apl = this.apples[i];
 				apl.delete();
-				this.apples = this.apples.slice(0,i - 1)
-				alert(this.appleNum);
+				this.apples = this.apples.slice(0,i - 1);
 			}
 			appleSpawn(){
 				for(let i = 0; i < this.appleNum; ++i){
@@ -328,7 +329,7 @@
 						this.appleAdd();
 					}else{
 						//this.appleRemove();
-						let num = this.appleNum + 2;
+						//let num = this.appleNum + 2;
 						/*for(let i = e.target.value; i < num; ++i){
 							alert(e.target.value+"\n"+this.appleNum);
 							this.appleRemove();
