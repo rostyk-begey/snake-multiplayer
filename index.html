@@ -291,6 +291,7 @@
 				let apl = this.apples[i];
 				apl.delete();
 				this.apples = this.apples.slice(0,i - 1)
+				alert(this.appleNum);
 			}
 			appleSpawn(){
 				for(let i = 0; i < this.appleNum; ++i){
@@ -317,9 +318,20 @@
 					//alert(e.target.value);
 					//alert("old: "+this.appleNum+"\nnew: "+e.target.value);
 					if(this.appleNum < e.target.value){
-						this.appleAdd();
+						//this.appleAdd();
+						for(let i = this.appleNum; i < e.target.value; ++i){
+							this.appleAdd();
+						}
 					}else{
-						this.appleRemove();
+						//this.appleRemove();
+						let num = this.appleNum + 2;
+						/*for(let i = e.target.value; i < num; ++i){
+							alert(e.target.value+"\n"+this.appleNum);
+							this.appleRemove();
+						}*/
+						do{
+							this.appleRemove();
+						}while(this.appleNum >= e.target.value -2);
 					}
 				});
 			}
@@ -371,10 +383,10 @@
 					selfCollision = true,
 					multiplayer = true
 				){
-				this.size   = size;//tail size
+				this.size = this.size_basic = size;//tail size
 				this.tail = []; //tail array
 				this.tail_o = []; //previous frame tail array
-				this.spd = 5; // absloute spead
+				this.spd = this.spd_basic = 5; // absloute spead
 				this.spX = 0; //X axis spead
 				this.spY = 0; //Y axis spead
 				this.teleport = teleport;
@@ -658,29 +670,55 @@
 					head = {x:headX,y:headY,color:ctx.fillStyle};
 
 				  //self collision check
-				  if(this.selfCollision && this.score > 0
-				   && !this.failed){
+				  if(this.selfCollision && this.score > 0 && !this.failed){
 					  this.tail.some((elem,i)=>{
-					  	if(elem.x == headX && elem.y == headY && i < this.size - 1 && i > 5){
+					  	if(elem.x == headX && elem.y == headY && i <= this.size - 1){
 					  		this.sound("fail");
 					  		//this.gameStarted = false;
+					  		//alert(this.spd / this.size);
+					  		//alert(this.spd_basic / this.size_basic / 2);
+					  		//alert(this.size - i+"\n"+this.size_basic);
+					  		--this.size;
+					  		--this.score;
+					  		this.spd -= 0.125;
+					  		/*
+					  		if(i + 1 > this.size_basic){
+					  				this.size = i;
+					  				this.spd -= (this.spd_basic / this.size_basic) * (this.size - (i + 1));
+					  				this.score -= i;
+					  				alert("bind 1");
+					  			}else{
+					  				this.size = this.size_basic;
+					  				this.spd = this.spd_basic;
+					  				this.score = 0;
+					  				alert("bind 2");
+					  			}*/
+					  		/*//////////
 					  		if(i >= this.tail.length / 2){
-					  			this.size = i;
-					  			this.spd -= (this.spd / this.size);
-					  			this.score -= i;//sthis.size - this.tail.length + i;
+					  			if(this.size - i >= this.size_basic){
+					  				this.size = i;
+					  				this.spd -= (this.spd_basic / this.size_basic) * i;
+					  			}else{
+					  				this.size = this.size_basic;
+					  				this.spd = this.spd_basic;
+					  			}
+					  			//this.spd -= (this.spd / this.size);
+					  			//this.score -= i + this.size_basic;//this.size - this.tail.length + i;
+					  			this.score -= i;
 					  		}else{
 					  			this.size -= 1;
-					  			this.spd -= this.spd / this.size;//0.05;
-					  			alert(this.spd - (this.spd / this.size));
+					  			this.spd -= this.spd_basic / this.size_basic;//0.05;
+					  			//alert(this.spd - (this.spd / this.size));
 					  			--this.score;
-					  		}
+					  		}*/
+					  		/////
 								this.tail = this.tail.slice(0,this.size);
 								this.interval= 1000/(this.spd*2.5);
 								return true;
 					  	}
 					  });
 					}
-//commit test
+
 					//other snake collision check
 					if(this.multiplayer && this.gameStarted && this.score && !this.failed){
 						parent.snakes.some((snake)=>{
