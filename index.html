@@ -241,7 +241,7 @@
 				this.snakes.forEach((snake)=>{
 					snake.init();
 				});
-				addEventListener("keypress",(e) => {
+				document.addEventListener("keypress",(e) => {
 					if(e.keyCode == 13 && !this.gameStarted){
 						this.gameStarted = true;
 
@@ -292,14 +292,16 @@
 				let i = this.apples.length - 1;
 				let apl = this.apples[i];
 				apl.delete();
-				this.apples = this.apples.slice(0,i - 1);
+				this.apples = this.apples.slice(0,i - 1)
 			}
 			appleSpawn(){
 				for(let i = 0; i < this.appleNum; ++i){
-					let apl = new Apple(this,"blue");
-					this.apples.push(apl);
-					apl.randCord();
-					apl.spawn();
+					// let apl = new Apple(this,"blue");
+					// this.apples.push(apl);
+					// apl.randCord();
+					// apl.spawn();
+					this.appleAdd();
+					--this.appleNum;//addpleApp() already increases appleNum
 				}
 				return this.apples;
 			}
@@ -315,29 +317,15 @@
 				const ctx = this.ctx;
 				const appleControl = document.getElementById("appleControl");
 				appleControl.value = this.appleNum;
-				appleControl.addEventListener("keydown",(e)=>{
-					e.preventDefault();
-				});
 				appleControl.addEventListener("change",(e)=>{
 					//alert(e.target.value);
 					//alert("old: "+this.appleNum+"\nnew: "+e.target.value);
 					if(this.appleNum < e.target.value){
-						//this.appleAdd();
-						/*for(let i = this.appleNum; i < e.target.value; ++i){
-							this.appleAdd();
-						}*/
+						alert
 						this.appleAdd();
 					}else{
-						//this.appleRemove();
-						//let num = this.appleNum + 2;
-						/*for(let i = e.target.value; i < num; ++i){
-							alert(e.target.value+"\n"+this.appleNum);
-							this.appleRemove();
-						}*/
+						//alert("reduce");
 						this.appleRemove();
-						/*do{
-							this.appleRemove();
-						}while(this.appleNum >= e.target.value -2);*/
 					}
 				});
 			}
@@ -428,7 +416,7 @@
 				//addEventListener("keypress",(e) => {
 					if(parent.gameStarted){
 						//for(let parent of this.parents){
-							console.log("started");
+							console.log("started");  
 							this.place(parent, headX, headY);
 
 							const ctx  = parent.ctx;
@@ -587,7 +575,7 @@
 						this.sound("eat");
 
 						parent.apples[i].respawn();
-						this.spd += 0.05;
+						this.spd += 0.025;
 						++this.score;
 						//console.log(this.size);
 						//alert( this.spd ); 
@@ -604,7 +592,7 @@
 				const pxSize = parent.pxSize;
 				let spd_o = this.spd;
 
-				addEventListener("keydown",(e) => {
+				document.addEventListener("keydown",(e) => {
 					//e.preventDefault();
 					//console.warn(this.key);
 					//alert(this.key.up);
@@ -637,7 +625,7 @@
 						this.interval = 1000/(this.spd*2.5);
 					}
 				});
-				addEventListener("keyup",(e) => {
+				document.addEventListener("keyup",(e) => {
 					if (e.keyCode == (this.key.forse) && this.gameStarted && this.forseSpead){
 						this.spd = spd_o;
 						this.interval = 1000/(this.spd*2.5);
@@ -686,8 +674,8 @@
 					  		//alert(this.size - i+"\n"+this.size_basic);
 					  		--this.size;
 					  		--this.score;
-					  		this.spd -= 0.125;
-					  		/*
+					  		this.spd -= 0.0125;
+					  		/*/
 					  		if(i + 1 > this.size_basic){
 					  				this.size = i;
 					  				this.spd -= (this.spd_basic / this.size_basic) * (this.size - (i + 1));
