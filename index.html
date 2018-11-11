@@ -3,13 +3,27 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Canvas snake</title>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
 	<style>
+		@keyframes paused{
+			0%{
+				border:3px solid rgba(255,255,255,.4);
+			}
+			100%{
+				border: 3px solid rgba(0,0,0,.5);
+			}
+		}
+		*{
+			-webkit-box-sizing: border-box;
+			-moz-box-sizing: border-box;
+			box-sizing: border-box;
+		}
 		body{
 			margin: 0;
 			padding: 0;
 			overflow: hidden;
 			display: flex;
-			justify-content: space-around;
+			justify-content: center;
 			-ms-align-items: center;
 			align-items: center;
 			height: 100vh;
@@ -22,6 +36,7 @@
 			position: relative;
 			display: block;
 			background: #282923;
+			margin-right: 10px;
 		}
 
 		#canv2{
@@ -73,15 +88,13 @@
 			align-items: center;
 			border-radius: 30px;
 			font-size: 30px;
-			border:3px solid rgba(255,255,255,.55);
-			background: #cccccc;
+			/*border:3px solid rgba(255,255,255,.55);*/
+			background-color: rgba(255,255,255,.4);
 		}
 		.sidebar li.controls .btnAddSnake:hover{
 			cursor: pointer;
-			border:3px solid rgba(0, 0, 0, 0.2);
-		}
-		.sidebar li.controls input{
-			margin-left: 10px;
+			/*border:3px solid rgba(0, 0, 0, 0.2);*/
+			/*border:3px solid rgba(255, 255, 255, 0.6);*/
 		}
 		.sidebar li.snake input{
 			width: 20px;
@@ -144,6 +157,7 @@
 		}
 		input:hover{
 			border:3px solid rgba(255, 255, 255, 0.6);
+			cursor: pointer;
 		}
 		input:focus{
 			outline: none !important;
@@ -153,6 +167,95 @@
 			left: 30px;
 			font-family: sans-serif;
 			font-size: 18px;
+		}
+		.sidebar li.controls > *{
+			margin-left: 15px;
+		}
+		input.playBtn{
+			color: #fff;
+			flex-grow: 100;
+			margin-left: 0 !important;
+			display: block;
+			border-radius: 30px;
+			font-family: sans-serif;
+			font-size: 20px;
+		}
+		.btnMute{
+			width: 40px;
+			height: 40px;
+			display: flex;
+			justify-content: center;
+			font-size: 20px;
+			color: #fff;
+			border-radius: 30px;
+			background-color: rgba(255,255,255,.4);
+		  border:3px solid rgba(0,0,0,.5);
+		}
+		.btnMute:hover{
+			border:3px solid rgba(255, 255, 255, 0.6);
+			cursor: pointer;
+		}
+		.btnMute:focus{
+			outline: none !important;
+		} 
+		.playBtn.blink{
+			animation-name: paused;
+	    animation-duration: 1s;
+	    animation-iteration-count: infinite;
+		}
+		.sidebar li.controls .appleCtrl{
+			border-radius: 30px;
+			border:3px solid rgba(255,255,255,.55);
+			display: -webkit-flex;
+			display: -moz-flex;
+			display: -ms-flex;
+			display: -o-flex;
+			display: flex;
+			-ms-align-items: center;
+			align-items: center;
+			justify-content: space-between;
+			height: 40px;
+			position: relative;
+			overflow: hidden;
+			z-index: 1;
+		}
+		.appleCtrl span{
+			padding: 0 48px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			background-color: rgba(255,255,255,.55);
+			height: 100%;
+			color: #fff;
+			font-family: sans-serif;
+			font-size: 20px;
+			z-index: 1;
+		}
+		.appleCtrl input{
+			border-radius: 30px;
+			width: 40px;
+			height: 40px;
+			position: absolute;
+			color: #fff;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			border-radius: 30px;
+			font-size: 30px;
+			background-color: transparent;
+			border-color: transparent;
+			z-index: 2;
+		}
+		.appleCtrl input:hover{
+		  background-color: rgba(255,255,255,.4);
+			border:3px solid rgba(0, 0, 0, 0.2);
+			cursor: pointer;
+		}
+		input.decrease{
+			left: -2px;
+		}
+		input.increase{
+			right: -2px;
 		}
 		/*
 		::-webkit-input-placeholder {
@@ -201,7 +304,16 @@
 			<input type="text" placeholder="&dArr;">
 			<input type="button" value="&#x2715;">
 		</li> -->
-		<li class="controls" id="controls"><input type="number" min="1" max="20" value="1"id="appleControl"><input type="button" class="btnAddSnake" id="btnAddSnake" value="+"></li>
+		<li class="controls" id="controls">
+			<input type="button" class="playBtn blink" autofocus id="playBtn" value="Start">
+			<button class="btnMute" autofocus id="btnMute" ><i class="fas fa-volume-up" id="vol"></i></button>
+			<div class="appleCtrl" id="appleCtrl">
+				<input type="button" title="Delete apple" value="-" class="decrease" id="decr">
+				<span class="appleNum" id="aNum">1</span>
+				<input type="button" title="Add apple"    value="+" class="increase" id="incr">
+			</div>
+			<input type="button" title="Add snake" class="btnAddSnake" id="btnAddSnake" value="+">
+		</li>
 	</ul>
 	
 	<!-- <canvas id='canv2'>Update your browser</canvas> -->
@@ -217,10 +329,14 @@
 				//this.pxSize = this.size / this.pxNum;
 				this.size = this.pxNum * this.pxSize;
 				this.appleNum = 3;
+				this.appleMaxNum = 20;
 				//this.drawGrid();
+				this.playBtn = document.getElementById("playBtn");
+				this.btnMute = document.getElementById("btnMute");
 				this.snakes = [];
 				this.apples = [];
 				this.init();
+				this.muteCtrl();
 			}
 			get elem() {
 				return document.querySelector(this._selector);
@@ -241,8 +357,8 @@
 				this.snakes.forEach((snake)=>{
 					snake.init();
 				});
-				document.addEventListener("keypress",(e) => {
-					if(e.keyCode == 13 && !this.gameStarted){
+				this.playBtn.addEventListener("click",(e) => {
+					if(this.playBtn.value == "Start"){//e.keyCode == 13 && !this.gameStarted
 						this.gameStarted = true;
 
 						this.appleSpawn();
@@ -250,9 +366,47 @@
 						this.snakes.forEach((snake)=>{
 							snake.start();
 						});
+						e.target.classList.remove("blink");
+						this.playBtn.value = "Pause";
+						this.gamePlayPause();
 					}
 				});
 				this.appleControl();
+			}
+			muteCtrl(){
+				this.btnMute.addEventListener("click", (e) => {
+					//alert(String.fromCharCode(10005));
+					//alert((5535756586).toString(32));
+					let icon = document.getElementById("vol");
+					/*let off  = document.createElement('li');
+					off.innterH*/
+					if(this.muted){
+						icon.classList.remove("fa-volume-off");
+						icon.classList.add("fa-volume-up");
+						this.muted = false;
+					}else{
+						icon.classList.remove("fa-volume-up");
+						icon.classList.add("fa-volume-off");
+						this.muted = true;
+					}
+				});
+			}
+			gamePlayPause(){
+				this.playBtn.addEventListener("click",(e) => {
+					if(e.target.value == "Pause"){
+						this.snakes.forEach((snake,i)=>{
+							snake.pause();
+						});
+						e.target.classList.add("blink");
+						e.target.value = "Resume";
+					}else if(e.target.value == "Resume"){
+						this.snakes.forEach((snake,i)=>{
+							snake.resume();
+						});
+						e.target.classList.remove("blink");
+						e.target.value = "Pause";
+					}
+				});
 			}
 			drawLine(x1, y1, x2, y2, color = 'grey') {
 				const canv = this.elem;
@@ -289,17 +443,13 @@
 			}
 			appleRemove(){
 				--this.appleNum;
-				let i = this.apples.length - 1;
+				let i = this.appleNum;
 				let apl = this.apples[i];
 				apl.delete();
-				this.apples = this.apples.slice(0,i - 1)
+				this.apples = this.apples.slice(0,i);
 			}
 			appleSpawn(){
 				for(let i = 0; i < this.appleNum; ++i){
-					// let apl = new Apple(this,"blue");
-					// this.apples.push(apl);
-					// apl.randCord();
-					// apl.spawn();
 					this.appleAdd();
 					--this.appleNum;//addpleApp() already increases appleNum
 				}
@@ -315,17 +465,25 @@
 			}
 			appleControl(){
 				const ctx = this.ctx;
-				const appleControl = document.getElementById("appleControl");
-				appleControl.value = this.appleNum;
-				appleControl.addEventListener("change",(e)=>{
+				//const appleControl = document.getElementById("appleCtrl");
+				const appleIncrease = document.getElementById("incr");
+				const appleDecrease = document.getElementById("decr");
+				const appleNumOut   = document.getElementById("aNum");
+
+				appleNumOut.innerHTML = this.appleNum;
+
+				appleIncrease.addEventListener("click",(e)=>{
 					//alert(e.target.value);
 					//alert("old: "+this.appleNum+"\nnew: "+e.target.value);
-					if(this.appleNum < e.target.value){
-						alert
+					if(this.appleNum + 1 <= this.appleMaxNum){
 						this.appleAdd();
-					}else{
-						//alert("reduce");
+						appleNumOut.innerHTML = this.appleNum;
+					}
+				});
+				appleDecrease.addEventListener("click",(e)=>{
+					if(this.appleNum - 1 >= 1){
 						this.appleRemove();
+						appleNumOut.innerHTML = this.appleNum;
 					}
 				});
 			}
@@ -392,9 +550,10 @@
 				this.score_table;
 				this.key = key; //snake keys array
 				this.gameStarted = false;
-				this.forseSpead = false;
+				this.forseSpead = true;
 				this.score = 0;//score
 				this.multiplayer = multiplayer;
+				this.paused = false;
 
 				this.parent.snakes.push(this);
 				this.init();
@@ -429,6 +588,17 @@
 						//}
 					}
 				//});
+			}
+			pause(){
+				this.paused = true;
+				this.spX = this.spY = 0;
+				const snake = this;
+				//document.removeEventListener("keydown",snake.changeDir(event));
+				//document.removeEventListener("keyup",snake.forseSpead(event));
+			}
+			resume(){
+				this.paused = false;
+				//this.spX = this.spY = 0;
 			}
 			drawTail(ctx,pxSize){
 				if(!this.deleted){
@@ -487,10 +657,12 @@
 				console.log(snakes.length);
 			  ctx.clearRect(this.headX - 0.45, this.headY - 0.45, pxSize + 0.9, pxSize + 0.9);
 			}
-			sound(id){
-				document.getElementById(id).pause();
-				document.getElementById(id).currentTime = 0;
-				document.getElementById(id).play();
+			sound(id,parent){
+				if(!parent.muted){
+					document.getElementById(id).pause();
+					document.getElementById(id).currentTime = 0;
+					document.getElementById(id).play();
+				}
 			}
 			settings(elem,parent){
 				const ctx  = parent.ctx;
@@ -572,13 +744,11 @@
 						(Math.abs(headY - appleY) < 2)
 					){
 						++this.size;
-						this.sound("eat");
+						this.sound("eat",parent);
 
 						parent.apples[i].respawn();
 						this.spd += 0.025;
 						++this.score;
-						//console.log(this.size);
-						//alert( this.spd ); 
 						this.interval = 1000/(this.spd*2.5);
 						return true;
 					}
@@ -592,45 +762,52 @@
 				const pxSize = parent.pxSize;
 				let spd_o = this.spd;
 
-				document.addEventListener("keydown",(e) => {
-					//e.preventDefault();
-					//console.warn(this.key);
-					//alert(this.key.up);
-					if (e.keyCode == this.key.up && !this.spY) { 
-					  this.spY = -parent.pxSize; this.spX = 0; 
-					  this.sound("turn"); 
-					  this.failed=false;
-					}// up
-					else if (e.keyCode == this.key.dn && !this.spY) { 
-						this.spY =  parent.pxSize; this.spX = 0; 
-						this.sound("turn"); 
-						this.failed=false;
-					}// down
-					else if (e.keyCode == this.key.lt && !this.spX) { 
-						this.spX = -parent.pxSize; this.spY = 0; 
-						this.sound("turn"); 
-						this.failed=false;
-					}// left
-					else if (e.keyCode == this.key.rt && !this.spX) { 
-						this.spX =  parent.pxSize; this.spY = 0; 
-						this.sound("turn"); 
-						this.failed=false;
-					}// right
-					else{
-						//console.log(e.keyCode);
-					}
+				//const changeDir  = this.changeDir(e);
+				//const forseSpead = this.forseSpead(e);
+				document.addEventListener("keydown", e => {
+					if(!this.paused){
+					//alert("not paused");
+						if (e.keyCode == this.key.up && !this.spY) { 
+						  this.spY = -parent.pxSize; this.spX = 0; 
+						  this.sound("turn",parent); 
+						  this.failed=false;
+						}// up
+						else if (e.keyCode == this.key.dn && !this.spY) { 
+							this.spY =  parent.pxSize; this.spX = 0; 
+							this.sound("turn",parent); 
+							this.failed=false;
+						}// down
+						else if (e.keyCode == this.key.lt && !this.spX) { 
+							this.spX = -parent.pxSize; this.spY = 0; 
+							this.sound("turn",parent); 
+							this.failed=false;
+						}// left
+						else if (e.keyCode == this.key.rt && !this.spX) { 
+							this.spX =  parent.pxSize; this.spY = 0; 
+							this.sound("turn",parent); 
+							this.failed=false;
+						}// right
+						else{
+							//console.log(e.keyCode);
+						}
 
-					if (e.keyCode == (this.key.forse) && this.gameStarted && this.forseSpead){
-						this.spd += 15;
-						this.interval = 1000/(this.spd*2.5);
+						if (e.keyCode == (this.key.forse) && this.gameStarted && this.forseSpead){
+							this.spd += 15;
+							this.interval = 1000/(this.spd*2.5);
+						}
 					}
 				});
-				document.addEventListener("keyup",(e) => {
-					if (e.keyCode == (this.key.forse) && this.gameStarted && this.forseSpead){
-						this.spd = spd_o;
-						this.interval = 1000/(this.spd*2.5);
+				document.addEventListener("keyup" ,e => {
+					//this.forseSpead(e);
+					if(!this.paused){
+						if (e.keyCode == (this.key.forse) && this.gameStarted && this.forseSpead){
+							this.spd = spd_o;
+							this.interval = 1000/(this.spd*2.5);
+						}
 					}
 				});
+				//}
+				//console.log(this.paused);
 
 				let loop = () => {
 
@@ -664,14 +841,10 @@
 					head = {x:headX,y:headY,color:ctx.fillStyle};
 
 				  //self collision check
-				  if(this.selfCollision && this.score > 0 && !this.failed){
+				  if(this.selfCollision && this.score > 0 && !this.failed && !this.paused){
 					  this.tail.some((elem,i)=>{
 					  	if(elem.x == headX && elem.y == headY && i <= this.size - 1){
-					  		this.sound("fail");
-					  		//this.gameStarted = false;
-					  		//alert(this.spd / this.size);
-					  		//alert(this.spd_basic / this.size_basic / 2);
-					  		//alert(this.size - i+"\n"+this.size_basic);
+					  		this.sound("fail",parent);
 					  		--this.size;
 					  		--this.score;
 					  		this.spd -= 0.0125;
@@ -714,7 +887,7 @@
 					}
 
 					//other snake collision check
-					if(this.multiplayer && this.gameStarted && this.score && !this.failed){
+					if(this.multiplayer && this.gameStarted && !this.failed){
 						parent.snakes.some((snake)=>{
 							if(snake !== this && !this.failed){
 								//this.color == "grey" ? console.log(this.tail) : false;
@@ -722,15 +895,17 @@
 								let t = snake.tail;
 								for(let i = 0; i < t.length; ++i){
 									if(~~t[i].x == ~~headX && ~~t[i].y == ~~headY && !this.failed){
-										this.sound("fail");
+										this.sound("fail",parent);
 										headX -= this.spX;
 										headY -= this.spY;
-										this.size -= 1;
 										this.spX = 0;
 										this.spY = 0;
-										--this.score;
-										this.failed = true;
-										this.interval = 1000/(this.spd*2.5);
+										if(this.score){
+											this.size -= 1;
+											--this.score;
+											this.failed = true;
+											this.interval = 1000/(this.spd*2.5);
+										}
 										break;
 									}
 								}
@@ -738,12 +913,12 @@
 						});
 					}
 					//clear old tail
-					if(!this.failed||true){
+					//if(!this.failed){
 						this.clearTail(ctx,pxSize);
-					}
+					//}
 				  //generating new tail by pushing "new head" to the begining of the tail
 				  if(!this.deleted){
-					this.tail.unshift({x:headX,y:headY,color:ctx.fillStyle});
+						this.tail.unshift({x:headX,y:headY,color:ctx.fillStyle});
 					}
 
 					//limiter 
@@ -774,7 +949,7 @@
 		const addSnake = document.getElementById("btnAddSnake");
 		addSnake.addEventListener("click",()=>{
 			canvas1.addSnake();
-			canvas1.appleAdd();
+			//canvas1.appleAdd();
 		});
 	</script>
 </body>
