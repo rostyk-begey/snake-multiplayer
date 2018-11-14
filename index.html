@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-129166857-1"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'UA-129166857-1');
+	</script>
+
 	<meta charset="UTF-8">
 	<title>Canvas snake</title>
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
@@ -328,15 +339,15 @@
 				this.pxSize = ~~pxSize;
 				//this.pxSize = this.size / this.pxNum;
 				this.size = this.pxNum * this.pxSize;
-				this.appleNum = 3;
+				this.appleNum = 1;
 				this.appleMaxNum = 20;
-				//this.drawGrid();
 				this.playBtn = document.getElementById("playBtn");
 				this.btnMute = document.getElementById("btnMute");
+
 				this.snakes = [];
 				this.apples = [];
 				this.init();
-				this.muteCtrl();
+				//this.drawGrid();
 			}
 			get elem() {
 				return document.querySelector(this._selector);
@@ -354,9 +365,10 @@
 				ctx.strokeStyle = 'Black';
 				canv.width  = canv.height = this.size;
 
-				this.snakes.forEach((snake)=>{
-					snake.init();
-				});
+				this.addSnake();
+				//this.snakes.forEach((snake)=>{
+					//snake.init();
+				//});
 				this.playBtn.addEventListener("click",(e) => {
 					if(this.playBtn.value == "Start"){//e.keyCode == 13 && !this.gameStarted
 						this.gameStarted = true;
@@ -372,6 +384,8 @@
 					}
 				});
 				this.appleControl();
+				this.btnAddSnake("btnAddSnake");
+				this.muteCtrl();
 			}
 			muteCtrl(){
 				this.btnMute.addEventListener("click", (e) => {
@@ -386,9 +400,16 @@
 						this.muted = false;
 					}else{
 						icon.classList.remove("fa-volume-up");
-						icon.classList.add("fa-volume-off");
+						icon.classList.add("fa-volume-mute");
 						this.muted = true;
 					}
+				});
+			}
+			btnAddSnake(id){
+				const btnAddSnake = document.getElementById(id);
+				btnAddSnake.addEventListener("click",()=>{
+					this.addSnake();
+					//this.appleAdd();
 				});
 			}
 			gamePlayPause(){
@@ -422,10 +443,10 @@
 			drawGrid(){
 				let w = this.size,
 						h = this.size,
-						p = 36,//w / Canvas._pxSize,
+						//p = this.pxSize,//w / Canvas._pxSize,
 
-						xStep = w / p,
-						yStep = h / p;
+						xStep = this.pxSize,
+						yStep = this.pxSize;
 
 				for(let x = 0; x < w; x += xStep){
 					this.drawLine(x, 0, x, h);
@@ -451,7 +472,7 @@
 			appleSpawn(){
 				for(let i = 0; i < this.appleNum; ++i){
 					this.appleAdd();
-					--this.appleNum;//addpleApp() already increases appleNum
+					--this.appleNum;//appleApp() already increases appleNum
 				}
 				return this.apples;
 			}
@@ -461,7 +482,8 @@
 				});
 			}
 			addSnake(){
-				const snake = new Snake(this, 20, "lime",  {up: 73, dn: 75, lt: 74, rt: 76,  forse: 16 });
+				const snake = new Snake(this, 20, {up: 38, dn: 40, lt: 37, rt: 39, forse: false});
+				//{up: 73, dn: 75, lt: 74, rt: 76,  forse: 16 }
 			}
 			appleControl(){
 				const ctx = this.ctx;
@@ -527,9 +549,7 @@
 		class Snake {
 			constructor(
 					parent, 
-					size = 5, 
-					color = "green", 
-					//key = {up: 1094||38,dn: 1110||40,lt: 1092||37,rt: 1074||39}
+					size = 5,  
 					key = {up: 38,dn: 40,lt: 37,rt: 39,forse:32}||{up: 87,dn: 83,lt: 65,rt: 68,forse:32},
 					teleport = true,
 					selfCollision = true,
@@ -546,7 +566,7 @@
 				this.parent = parent; //parent canvas
 				//this.color  = color; //snake color
 				this.color = "#"+ Math.floor(Math.random()*16777215).toString(16);
-				this.headColor = "#"+ Math.floor(Math.random()*16777215).toString(16);//"red"; 
+				this.headColor = "#"+ Math.floor(Math.random()*16777215).toString(16);
 				this.score_table;
 				this.key = key; //snake keys array
 				this.gameStarted = false;
@@ -563,6 +583,7 @@
 			init() {
 				const parent = this.parent;
 				this.settings(".sidebar",parent);
+				++parent.snakes_num;
 				if(parent.gameStarted){
 					this.start();
 				}
@@ -575,7 +596,7 @@
 				//addEventListener("keypress",(e) => {
 					if(parent.gameStarted){
 						//for(let parent of this.parents){
-							console.log("started");  
+							//console.log("started");  
 							this.place(parent, headX, headY);
 
 							const ctx  = parent.ctx;
@@ -618,6 +639,7 @@
 				  });
 				  this.tail_o = this.tail;
 				}
+				//this.parent.drawGrid();
 			}
 			place(parent, headX, headY) {
 				const ctx  = parent.ctx;
@@ -654,7 +676,7 @@
 				let snakes = this.parent.snakes;
 				let index  = this.parent.snakes.indexOf(this);
 				snakes.splice(index,1);
-				console.log(snakes.length);
+				//console.log(snakes.length);
 			  ctx.clearRect(this.headX - 0.45, this.headY - 0.45, pxSize + 0.9, pxSize + 0.9);
 			}
 			sound(id,parent){
@@ -715,6 +737,7 @@
 					keys[k].addEventListener("keyup",(e)=>{
 						//keys[k].style.border = "2px solid red";
 						this.key[k] = e.keyCode;
+						//console.log(this.key);
 					});
 				}
 				color.addEventListener("change",()=>{
@@ -747,9 +770,10 @@
 						this.sound("eat",parent);
 
 						parent.apples[i].respawn();
-						this.spd += 0.025;
+						this.spd += 0.0125;
 						++this.score;
 						this.interval = 1000/(this.spd*2.5);
+						//console.log(this.spd);
 						return true;
 					}
 				});
@@ -817,49 +841,52 @@
 
 				  let head = {x:headX,y:headY,color:ctx.fillStyle};
 
-					//teleport
-					if(this.teleport){
-						let start = 0,
-								end   = parent.size;
-						if( Math.ceil(headX) > end   &&  this.spX >= 0){headX = start - pxSize; }
-					  if( Math.ceil(headX) < start &&  this.spX <= 0){headX = end; }
-					  if( Math.ceil(headY) < start &&  this.spY <= 0){headY = end; }
-					  if( Math.ceil(headY) > end   &&  this.spY >= 0){headY = start - pxSize; }
-					}else{
-						//this.failed = true;
-						//console.log("failed");
-					}
-
 					ctx.fillStyle = this.color;
 
-				  //parent.drawGrid();
-				  //console.log(headX,"\n",headY);
-				  //parent.appleSpawn(parent.appleX,parent.appleY);
-				  //speed increas
+				  //head moving
 					headX += this.spX;
 					headY += this.spY;
 					head = {x:headX,y:headY,color:ctx.fillStyle};
+
+					//teleport (strict after head moving)
+					if(this.teleport){
+						let start = 0,
+								end   = parent.size;
+						if( Math.ceil(headX) >= end   ){headX = start; }
+					  if( Math.ceil(headX) < start ){headX = end - pxSize; }
+					  if( Math.ceil(headY) < start ){headY = end - pxSize; }
+					  if( Math.ceil(headY) >= end   ){headY = start; }
+					}
 
 				  //self collision check
 				  if(this.selfCollision && this.score > 0 && !this.failed && !this.paused){
 					  this.tail.some((elem,i)=>{
 					  	if(elem.x == headX && elem.y == headY && i <= this.size - 1){
 					  		this.sound("fail",parent);
-					  		--this.size;
-					  		--this.score;
-					  		this.spd -= 0.0125;
-					  		/*/
+					  		//--this.size;
+					  		//--this.score;
+					  		//this.spd -= 0.0125;
+					  		
 					  		if(i + 1 > this.size_basic){
-					  				this.size = i;
-					  				this.spd -= (this.spd_basic / this.size_basic) * (this.size - (i + 1));
-					  				this.score -= i;
-					  				alert("bind 1");
-					  			}else{
-					  				this.size = this.size_basic;
-					  				this.spd = this.spd_basic;
-					  				this.score = 0;
-					  				alert("bind 2");
-					  			}*/
+				  				//alert(this.size+"\n"+i + 1);
+				  				//console.error("rest tail: " + i);
+				  				//this.spd -= (this.spd_basic / this.size_basic) * (this.size - (i + 1));
+				  				this.spd -= (this.size - i - 1) * 0.0125;
+				  				this.score -= (this.size - i - 1);
+				  				//alert("bind 1");
+				  				this.size = i;
+				  				//alert(this.size);
+					  		}else{
+					  			//this.size = this.size_basic;
+					  			//this.spd = this.spd_basic;
+					  			//this.score = 0;
+
+					  			//alert("bind 2");
+
+					  			--this.size;
+						  		--this.score;
+						  		this.spd -= 0.0125;
+					  		}
 					  		/*//////////
 					  		if(i >= this.tail.length / 2){
 					  			if(this.size - i >= this.size_basic){
@@ -881,6 +908,7 @@
 					  		/////
 								this.tail = this.tail.slice(0,this.size);
 								this.interval= 1000/(this.spd*2.5);
+								//console.warn(this.spd);
 								return true;
 					  	}
 					  });
@@ -941,16 +969,16 @@
 
 		//const snake1 = new Snake(canvas1, 20, "lime",  {up: 73, dn: 75, lt: 74, rt: 76,  forse: 16 });
 		//snake1.score_table = ".snake1Score";
-		const snake2 = new Snake(canvas1, 20, "#00ffff",{up: 87, dn: 83, lt: 65, rt: 68,  forse: 16 });
-		snake2.score_table = ".snake2Score";
-		const snake3 = new Snake(canvas1, 20, "#cccccc",  {up: 104,dn: 101,lt: 100,rt: 102, forse: 32});
-		snake3.score_table = ".snake3Score";
+		//const snake2 = new Snake(canvas1, 20, "#00ffff",{up: 87, dn: 83, lt: 65, rt: 68,  forse: 16 });
+		//snake2.score_table = ".snake2Score";
+		//const snake3 = new Snake(canvas1, 20, "#cccccc",  {up: 104,dn: 101,lt: 100,rt: 102, forse: 32});
+		//snake3.score_table = ".snake3Score";
 		
-		const addSnake = document.getElementById("btnAddSnake");
+		/*const addSnake = document.getElementById("btnAddSnake");
 		addSnake.addEventListener("click",()=>{
 			canvas1.addSnake();
 			//canvas1.appleAdd();
-		});
+		});*/
 	</script>
 </body>
 </html>
